@@ -4,10 +4,7 @@ import org.engripaye.iamsystem.model.Role;
 import org.engripaye.iamsystem.model.User;
 import org.engripaye.iamsystem.security.JwtUtil;
 import org.engripaye.iamsystem.service.UserService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
@@ -22,20 +19,46 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public String register(@RequestParam String username,
-                           @RequestParam String password,
-                           @RequestParam Role role) {
-        userService.register(username, password, role);
+    public String register(@RequestBody RegisterRequest request) {
+        userService.register(request.getUsername(), request.getPassword(), request.getRole());
         return "Registered Successfully";
     }
 
     @PostMapping("/login")
-    public String login(@RequestParam String username,
-                        @RequestParam String password) {
-        if(userService.validate(username, password)) {
-            User user = userService.getByUsername(username);
+    public String login(@RequestBody LoginRequest request) {
+        if (userService.validate(request.getUsername(), request.getPassword())) {
+            User user = userService.getByUsername(request.getUsername());
             return jwtUtil.generateToken(user.getUsername(), user.getRole());
         }
         return "Invalid Credentials";
     }
-}
+
+    // ✅ DTOs
+    public static class RegisterRequest {
+        private String username;
+        private String password;
+        private Role role;
+
+        // Getters and setters
+        public String getUsername() { return username; }
+        public void setUsername(String username) { this.username = username; }
+
+        public String getPassword() { return password; }
+        public void setPassword(String password) { this.password = password; }
+
+        public Role getRole() { return role; }
+        public void setRole(Role role) { this.role = role; }
+    }
+
+    public static class LoginRequest {
+        private String username;
+        private String password;
+
+        // Getters and setters
+        public String getUsername() { return username; }
+        public void setUsername(String username) { this.username = username; }
+
+        public String getPassword() { return password; }
+        public void setPassword(String password) { this.password = password; }
+    }
+    }
